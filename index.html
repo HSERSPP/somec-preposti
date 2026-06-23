@@ -421,12 +421,17 @@ textarea.form-control{min-height:70px;resize:vertical}
 
   <div class="form-card" style="margin-top:16px">
     <label class="form-label" style="margin-bottom:8px;display:block">Foto generali (opzionali)</label>
-    <label class="photo-zone" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;margin-bottom:12px">
-      <input type="file" accept="image/*" capture="environment" multiple onchange="addGeneralPhotos(this)">
-      <span style="font-size:28px;line-height:1">📷</span>
-      <span style="font-size:13px;color:var(--text-light)">Tocca per aggiungere foto generali dell'area</span>
-    </label>
-    <div class="photo-grid" id="photo-grid-gen"></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <label class="cl-photo-btn" style="flex:1;justify-content:center;padding:14px;border-radius:var(--radius-lg)">
+        <input type="file" accept="image/*" capture="environment" onchange="addGeneralPhotos(this)">
+        <span style="font-size:20px">📷</span><span style="margin-left:6px;font-size:13px;font-weight:700">Scatta foto</span>
+      </label>
+      <label class="cl-photo-btn" style="flex:1;justify-content:center;padding:14px;border-radius:var(--radius-lg)">
+        <input type="file" accept="image/*" multiple onchange="addGeneralPhotos(this)">
+        <span style="font-size:20px">🖼</span><span style="margin-left:6px;font-size:13px;font-weight:700">Scegli dalla galleria</span>
+      </label>
+    </div>
+    <div class="photo-grid" id="photo-grid-gen" style="margin-top:12px"></div>
   </div>
 
   <div class="form-card" style="margin-top:16px">
@@ -1526,30 +1531,44 @@ async function confirmSend(){
       </div>
     </div>`;
 
-  const toList = emails.map(e=>({email:e}));
   const subjectPrefix = hasUrgent ? '🔴 URGENTE — ' : '';
+  const subject = `${subjectPrefix}[SOMEC HSE Preposti] ${data.area||''} — ${data.data||''} — ${data.preposto||''}`;
 
-  try{
+  // Destinatari "altri" (preposto + extra), separati da HSE per evitare
+  // qualunque comportamento anomalo quando mittente e destinatario coincidono
+  const otherEmails = [...(data.prepostoEmail ? [data.prepostoEmail] : []), ...extraEmails];
+
+  async function sendTo(emailList){
+    const toList = emailList.map(e=>({email:e}));
     const resp = await fetch(WORKER_ENDPOINT, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         to: toList,
-        subject: `${subjectPrefix}[SOMEC HSE Preposti] ${data.area||''} — ${data.data||''} — ${data.preposto||''}`,
+        subject: subject,
         htmlContent: htmlBody,
         attachment: [{ content: pdfBase64, name: filename }]
       })
     });
-
-    if(resp.ok){
-      statusEl.style.background = '#e8f5ee';
-      statusEl.innerHTML = `✅ Controllo inviato con successo a ${emails.length} destinatari con PDF allegato!`;
-      localStorage.removeItem(DRAFT_KEY);
-      setTimeout(()=>{ closeModal('modal-send'); document.getElementById('btn-confirm-send').disabled=false; }, 3000);
-    }else{
-      const err = await resp.json();
-      throw new Error(err.error || 'Errore proxy ('+resp.status+')');
+    if(!resp.ok){
+      const err = await resp.json().catch(()=>({}));
+      throw new Error(err.error || ('Errore proxy ('+resp.status+')'));
     }
+  }
+
+  try{
+    // Invio 1: sempre a HSE, isolato
+    await sendTo([HSE_EMAIL]);
+
+    // Invio 2: preposto + eventuali extra, solo se presenti
+    if(otherEmails.length > 0){
+      await sendTo(otherEmails);
+    }
+
+    statusEl.style.background = '#e8f5ee';
+    statusEl.innerHTML = `✅ Controllo inviato con successo a ${emails.length} destinatari con PDF allegato!`;
+    localStorage.removeItem(DRAFT_KEY);
+    setTimeout(()=>{ closeModal('modal-send'); document.getElementById('btn-confirm-send').disabled=false; }, 3000);
   }catch(e){
     if(e.message==='Failed to fetch' || e.message.includes('NetworkError')){
       statusEl.style.background = '#fdecea';
