@@ -421,9 +421,9 @@ textarea.form-control{min-height:70px;resize:vertical}
 
   <div class="form-card" style="margin-top:16px">
     <label class="form-label" style="margin-bottom:8px;display:block">Foto generali (opzionali)</label>
-    <label class="photo-zone">
+    <label class="photo-zone" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;margin-bottom:12px">
       <input type="file" accept="image/*" capture="environment" multiple onchange="addGeneralPhotos(this)">
-      <span style="font-size:28px">📷</span><br>
+      <span style="font-size:28px;line-height:1">📷</span>
       <span style="font-size:13px;color:var(--text-light)">Tocca per aggiungere foto generali dell'area</span>
     </label>
     <div class="photo-grid" id="photo-grid-gen"></div>
@@ -952,6 +952,32 @@ function saveNote(id, val){
 // ==========================================
 // FOTO INLINE PER VOCE
 // ==========================================
+// ==========================================
+// CORREZIONE ORIENTAMENTO FOTO (EXIF)
+// Usa canvas con drawImage — il browser applica automaticamente
+// la correzione EXIF quando disegna l'immagine su canvas
+// ==========================================
+function correctImageOrientation(dataUrl){
+  return new Promise((resolve)=>{
+    const img = new Image();
+    img.onload = ()=>{
+      try{
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = img.naturalWidth || img.width || 1;
+        canvas.height = img.naturalHeight || img.height || 1;
+        ctx.drawImage(img,0,0);
+        const corrected = canvas.toDataURL('image/jpeg',0.88);
+        if(corrected && corrected.length > 100) resolve(corrected);
+        else resolve(dataUrl);
+      }catch(e){ resolve(dataUrl); }
+    };
+    img.onerror = ()=>resolve(dataUrl);
+    img.src = dataUrl;
+    if(img.complete && img.naturalWidth > 0) img.onload();
+  });
+}
+
 function addVocePhoto(id, input){
   if(!responses[id]) responses[id] = { photos:[] };
   if(!responses[id].photos) responses[id].photos = [];
@@ -959,9 +985,11 @@ function addVocePhoto(id, input){
     if(file.size > 6*1024*1024){ showToast('⚠️ Foto troppo grande (max 6MB)'); return; }
     const r = new FileReader();
     r.onload = e=>{
-      responses[id].photos.push({ dataUrl: e.target.result, caption:'' });
-      renderVocePhotos(id);
-      saveDraft(false);
+      correctImageOrientation(e.target.result).then(corrected=>{
+        responses[id].photos.push({ dataUrl: corrected, caption:'' });
+        renderVocePhotos(id);
+        saveDraft(false);
+      });
     };
     r.readAsDataURL(file);
   });
@@ -994,8 +1022,10 @@ function addGeneralPhotos(input){
     if(file.size > 6*1024*1024){ showToast('⚠️ Foto troppo grande (max 6MB)'); return; }
     const r = new FileReader();
     r.onload = e=>{
-      generalPhotos.push({ dataUrl: e.target.result, caption:'' });
-      renderGeneralPhotos();
+      correctImageOrientation(e.target.result).then(corrected=>{
+        generalPhotos.push({ dataUrl: corrected, caption:'' });
+        renderGeneralPhotos();
+      });
     };
     r.readAsDataURL(file);
   });
@@ -1522,8 +1552,8 @@ async function confirmSend(){
     }
   }catch(e){
     if(e.message==='Failed to fetch' || e.message.includes('NetworkError')){
-      statusEl.style.background = '#fff8e8';
-      statusEl.innerHTML = `⚠️ Connessione instabile durante l'invio. Il report è probabilmente arrivato comunque — controlla la posta prima di reinviare.`;
+      statusEl.style.background = '#fdecea';
+      statusEl.innerHTML = `❌ Invio non riuscito: la richiesta non è partita o è stata bloccata (rete assente, blocco di sicurezza del browser, o server non raggiungibile). Il PDF NON è stato inviato — verifica la connessione e riprova, oppure scaricalo manualmente.`;
     }else{
       statusEl.style.background = '#fdecea';
       statusEl.innerHTML = `❌ Errore invio: ${e.message}. Prova a scaricare il PDF manualmente.`;
