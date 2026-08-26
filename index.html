@@ -93,9 +93,8 @@ textarea.form-control{min-height:70px;resize:vertical}
 .obs-level-btn{font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;border:2px solid var(--amber);color:var(--amber);background:transparent;cursor:pointer;transition:all .15s}
 .obs-level-btn.sel{background:var(--amber);color:#fff}
 .guide-box{margin:6px 0;padding:8px 10px;border-radius:6px;font-size:11.5px;line-height:1.5;display:none}
-.guide-box.show{display:block}
-.guide-box.guide-nc{background:#fdecea;border-left:3px solid var(--red);color:#7a1a1a}
-.guide-box.guide-obs{background:#fff8e8;border-left:3px solid var(--amber);color:#7a4a00}
+.nc-open .guide-box.guide-nc{display:block;background:#fdecea;border-left:3px solid var(--red);color:#7a1a1a}
+.obs-open .guide-box.guide-obs{display:block;background:#fff8e8;border-left:3px solid var(--amber);color:#7a4a00}
 .guide-box strong{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;opacity:.7}
 .cl-note{width:100%;border:1px solid var(--gray-border);border-radius:var(--radius);padding:7px 10px;font-size:12px;font-family:inherit;color:var(--text);resize:vertical;min-height:52px;margin-bottom:8px}
 .cl-note:focus{outline:none;border-color:var(--blue-mid)}
@@ -1066,13 +1065,7 @@ function setVal(id, val){
   const obsl = document.getElementById(`obsl-${id}`);
   if(obsl) obsl.classList.toggle('show', val==='OBS');
 
-  // Mostra/nascondi guide box esplicitamente
-  const guideNc = det?.querySelector('.guide-nc');
-  const guideObs = det?.querySelector('.guide-obs');
-  if(guideNc) guideNc.classList.toggle('show', val==='NC');
-  if(guideObs) guideObs.classList.toggle('show', val==='OBS');
-
-  // Auto-suggerisci il livello dalla NC_MATRIX se non già impostato
+  // Auto-suggerisci il livello di default dalla NC_MATRIX se non già impostato
   const m = NC_MATRIX[id] || {};
   if(val==='NC' && m.lv_nc && !responses[id].level){
     setNcLevel(id, m.lv_nc);
