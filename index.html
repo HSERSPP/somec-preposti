@@ -1412,7 +1412,10 @@ function buildPrepostoPDF(){
       const val = r.val||'';
       if(!val) return;
 
-      const tLines = doc.splitTextToSize(v.text, CW-22);
+      // Sanitizza il testo per jsPDF (Helvetica non supporta caratteri Unicode come →, ÷ ecc.)
+      const sanitize = (s) => (s||'').replace(/→/g,'->').replace(/[^\x00-\xFF]/g, '?');
+
+      const tLines = doc.splitTextToSize(sanitize(v.text), CW-22);
       const rowH = tLines.length>1 ? 9+(tLines.length-1)*4 : 9;
       checkY(rowH+2);
 
@@ -1435,7 +1438,7 @@ function buildPrepostoPDF(){
       doc.text(itemNum||val, ML+CW-badgeW-1+badgeW/2, y+4.5, {align:'center'});
 
       doc.setTextColor(20,20,20); doc.setFontSize(7.5); doc.setFont('helvetica','normal');
-      tLines.forEach((line,li)=>{ doc.text(line, ML+3, y+5.5+li*4); });
+      tLines.forEach((line,li)=>{ doc.text(sanitize(line), ML+3, y+5.5+li*4); });
       y += rowH+2;
 
       if(r.note){
@@ -1454,6 +1457,21 @@ function buildPrepostoPDF(){
         doc.setTextColor(255,255,255); doc.setFontSize(6.5); doc.setFont('helvetica','bold');
         doc.text(lvLabels[r.level], ML+6+26, y+3.5, {align:'center'});
         doc.setTextColor(0,0,0); y+=7;
+
+        // Guida NC dalla NC_MATRIX
+        const mNc = NC_MATRIX[v.id]||{};
+        if(mNc.guide_nc){
+          const guideText = sanitize(mNc.guide_nc);
+          const gLines = doc.splitTextToSize(guideText, CW-12);
+          const gH = 5 + gLines.length*3.8;
+          checkY(gH+2);
+          doc.setFillColor(253,236,234); doc.rect(ML+6,y,CW-12,gH,'F');
+          doc.setFontSize(6); doc.setFont('helvetica','bold'); doc.setTextColor(150,30,30);
+          doc.text('GUIDA NC:', ML+8, y+3.5);
+          doc.setFont('helvetica','normal'); doc.setTextColor(80,20,20);
+          gLines.forEach((gl,gi)=>{ doc.text(gl, ML+8, y+7+gi*3.8); });
+          doc.setTextColor(0,0,0); y+=gH+3;
+        }
       }
 
       if(val==='OBS' && r.obsLevel){
@@ -1463,6 +1481,21 @@ function buildPrepostoPDF(){
         doc.setTextColor(255,255,255); doc.setFontSize(6.5); doc.setFont('helvetica','bold');
         doc.text(obsLvLabels[r.obsLevel]||'OBS', ML+6+26, y+3.5, {align:'center'});
         doc.setTextColor(0,0,0); y+=7;
+
+        // Guida OBS dalla NC_MATRIX
+        const mObs = NC_MATRIX[v.id]||{};
+        if(mObs.guide_obs){
+          const guideTextObs = sanitize(mObs.guide_obs);
+          const gLinesObs = doc.splitTextToSize(guideTextObs, CW-12);
+          const gHObs = 5 + gLinesObs.length*3.8;
+          checkY(gHObs+2);
+          doc.setFillColor(255,249,230); doc.rect(ML+6,y,CW-12,gHObs,'F');
+          doc.setFontSize(6); doc.setFont('helvetica','bold'); doc.setTextColor(130,80,0);
+          doc.text('GUIDA OBS:', ML+8, y+3.5);
+          doc.setFont('helvetica','normal'); doc.setTextColor(100,60,0);
+          gLinesObs.forEach((gl,gi)=>{ doc.text(gl, ML+8, y+7+gi*3.8); });
+          doc.setTextColor(0,0,0); y+=gHObs+3;
+        }
       }
 
       if((val==='OBS'||val==='NC') && r.photos?.length){
