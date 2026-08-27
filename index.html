@@ -1413,7 +1413,13 @@ function buildPrepostoPDF(){
       if(!val) return;
 
       // Sanitizza il testo per jsPDF (Helvetica non supporta caratteri Unicode come →, ÷ ecc.)
-      const sanitize = (s) => (s||'').replace(/→/g,'->').replace(/[^\x00-\xFF]/g, '?');
+      const sanitize = (s) => (s||'')
+        .replace(/→/g,'->')
+        .replace(/\u2019/g,"'")
+        .replace(/\u2018/g,"'")
+        .replace(/\u201C/g,'"')
+        .replace(/\u201D/g,'"')
+        .replace(/[^\x00-\xFF]/g, '?');
 
       const tLines = doc.splitTextToSize(sanitize(v.text), CW-22);
       const rowH = tLines.length>1 ? 9+(tLines.length-1)*4 : 9;
