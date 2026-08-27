@@ -75,8 +75,10 @@ textarea.form-control{min-height:70px;resize:vertical}
 .cl-row.sel-nc{background:#fff5f5}
 .cl-voce{flex:1;font-size:13px;color:var(--text);line-height:1.4}
 .cl-voce .cl-ref{font-size:10px;color:var(--gray-mid);display:block;margin-top:2px;font-style:italic}
-.cl-buttons{display:flex;gap:4px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end;max-width:160px}
-.cl-btn{border:1.5px solid;border-radius:var(--radius);padding:4px 7px;font-size:10.5px;font-weight:700;cursor:pointer;background:transparent;transition:all .15s;letter-spacing:.02em;white-space:nowrap}
+.cl-row{display:flex;flex-direction:column;gap:6px;padding:10px 12px;border-bottom:1px solid #f0f2f5}
+.cl-row-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.cl-buttons{display:flex;gap:4px;flex-shrink:0;flex-wrap:nowrap}
+.cl-btn{border:1.5px solid;border-radius:var(--radius);padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;transition:all .15s;letter-spacing:.02em;white-space:nowrap}
 .cl-btn[data-val="C"]  {color:#1a7a4a;border-color:#1a7a4a}
 .cl-btn[data-val="OBS"]{color:#a06010;border-color:#a06010}
 .cl-btn[data-val="NC"] {color:#c0392b;border-color:#c0392b}
@@ -1067,12 +1069,14 @@ function buildRow(container, voce){
   const row = document.createElement('div');
   row.className = 'cl-row'; row.id = `row-${voce.id}`;
   row.innerHTML = `
-    <div class="cl-voce">${voce.text}${voce.ref ? `<span class="cl-ref">${voce.ref}</span>` : ''}</div>
-    <div class="cl-buttons">
-      <button class="cl-btn" data-val="C"   onclick="setVal('${voce.id}','C')">C</button>
-      <button class="cl-btn" data-val="OBS" onclick="setVal('${voce.id}','OBS')">OBS</button>
-      <button class="cl-btn" data-val="NC"  onclick="setVal('${voce.id}','NC')">NC</button>
-      <button class="cl-btn" data-val="NA"  onclick="setVal('${voce.id}','NA')">N/A</button>
+    <div class="cl-row-top">
+      <div class="cl-voce" style="min-width:0;flex:1">${voce.text}${voce.ref ? `<span class="cl-ref">${voce.ref}</span>` : ''}</div>
+      <div class="cl-buttons">
+        <button class="cl-btn" data-val="C"   onclick="setVal('${voce.id}','C')">C</button>
+        <button class="cl-btn" data-val="OBS" onclick="setVal('${voce.id}','OBS')">OBS</button>
+        <button class="cl-btn" data-val="NC"  onclick="setVal('${voce.id}','NC')">NC</button>
+        <button class="cl-btn" data-val="NA"  onclick="setVal('${voce.id}','NA')">N/A</button>
+      </div>
     </div>`;
   container.appendChild(row);
 
