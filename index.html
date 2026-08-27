@@ -68,15 +68,15 @@ select.form-control{appearance:none;background-image:url("data:image/svg+xml,%3C
 textarea.form-control{min-height:70px;resize:vertical}
 
 /* CHECKLIST */
-.cl-row{display:flex;align-items:flex-start;gap:12px;padding:11px 14px;border-bottom:1px solid #f0f2f5}
+.cl-row{display:flex;align-items:flex-start;gap:8px;padding:10px 12px;border-bottom:1px solid #f0f2f5}
 .cl-row:last-child{border-bottom:none}
 .cl-row:nth-child(odd){background:#fafbfc}
 .cl-row.sel-obs{background:#fffbf0}
 .cl-row.sel-nc{background:#fff5f5}
 .cl-voce{flex:1;font-size:13px;color:var(--text);line-height:1.4}
 .cl-voce .cl-ref{font-size:10px;color:var(--gray-mid);display:block;margin-top:2px;font-style:italic}
-.cl-buttons{display:flex;gap:5px;flex-shrink:0}
-.cl-btn{border:1.5px solid;border-radius:var(--radius);padding:5px 9px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;transition:all .15s;letter-spacing:.03em;white-space:nowrap}
+.cl-buttons{display:flex;gap:4px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end;max-width:160px}
+.cl-btn{border:1.5px solid;border-radius:var(--radius);padding:4px 7px;font-size:10.5px;font-weight:700;cursor:pointer;background:transparent;transition:all .15s;letter-spacing:.02em;white-space:nowrap}
 .cl-btn[data-val="C"]  {color:#1a7a4a;border-color:#1a7a4a}
 .cl-btn[data-val="OBS"]{color:#a06010;border-color:#a06010}
 .cl-btn[data-val="NC"] {color:#c0392b;border-color:#c0392b}
@@ -194,8 +194,8 @@ textarea.form-control{min-height:70px;resize:vertical}
 .back-btn:hover{color:var(--blue)}
 
 @media(max-width:480px){
-  .cl-buttons{flex-wrap:wrap;gap:4px}
-  .cl-btn{padding:5px 7px;font-size:10px}
+  .cl-buttons{flex-wrap:wrap;gap:3px;max-width:140px}
+  .cl-btn{padding:4px 6px;font-size:10px}
   .ss-num{font-size:18px}
   .actions-bar-inner{gap:8px}
   .btn{padding:9px 12px;font-size:12px}
@@ -1173,12 +1173,19 @@ function correctImageOrientation(dataUrl){
     const img = new Image();
     img.onload = ()=>{
       try{
+        // Compressione: max 1200px lato lungo, qualita 0.65
+        const MAX_SIZE = 1200;
+        let w = img.naturalWidth || img.width || 1;
+        let h = img.naturalHeight || img.height || 1;
+        if(w > MAX_SIZE || h > MAX_SIZE){
+          if(w >= h){ h = Math.round(h*MAX_SIZE/w); w = MAX_SIZE; }
+          else      { w = Math.round(w*MAX_SIZE/h); h = MAX_SIZE; }
+        }
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
-        canvas.width = img.naturalWidth || img.width || 1;
-        canvas.height = img.naturalHeight || img.height || 1;
-        ctx.drawImage(img,0,0);
-        const corrected = canvas.toDataURL('image/jpeg',0.88);
+        canvas.width = w; canvas.height = h;
+        ctx.drawImage(img,0,0,w,h);
+        const corrected = canvas.toDataURL('image/jpeg',0.65);
         if(corrected && corrected.length > 100) resolve(corrected);
         else resolve(dataUrl);
       }catch(e){ resolve(dataUrl); }
