@@ -76,7 +76,7 @@ textarea.form-control{min-height:70px;resize:vertical}
 .cl-row:nth-child(odd){background:#fafbfc}
 .cl-row.sel-obs{background:#fffbf0}
 .cl-row.sel-nc{background:#fff5f5}
-.cl-voce{flex:1;font-size:13px;color:var(--text);line-height:1.4}
+.cl-voce{flex:1;min-width:0;font-size:13px;color:var(--text);line-height:1.4}
 .cl-voce .cl-ref{font-size:10px;color:var(--gray-mid);display:block;margin-top:2px;font-style:italic}
 .cl-buttons{display:flex;gap:5px;flex-shrink:0}
 .cl-btn{border:1.5px solid;border-radius:var(--radius);padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;transition:all .15s;letter-spacing:.02em;white-space:nowrap}
@@ -197,7 +197,7 @@ textarea.form-control{min-height:70px;resize:vertical}
 .back-btn:hover{color:var(--blue)}
 
 @media(max-width:480px){
-  .cl-buttons{gap:4px}
+  .cl-buttons{gap:3px}.cl-btn{padding:4px 6px;font-size:10px}
   .cl-btn{padding:4px 6px;font-size:10px}
   .ss-num{font-size:18px}
   .actions-bar-inner{gap:8px}
