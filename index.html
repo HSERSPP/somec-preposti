@@ -79,8 +79,8 @@ textarea.form-control{min-height:70px;resize:vertical}
 .cl-voce{flex:1;font-size:13px;color:var(--text);line-height:1.4}
 .cl-voce .cl-ref{font-size:10px;color:var(--gray-mid);display:block;margin-top:2px;font-style:italic}
 .cl-row{display:flex;flex-direction:column;gap:6px;padding:10px 12px;border-bottom:1px solid #f0f2f5}
-.cl-row-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
-.cl-buttons{display:flex;gap:4px;flex-shrink:0;flex-wrap:nowrap}
+.cl-row-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.cl-buttons{display:flex;gap:4px;flex-shrink:0;flex-wrap:nowrap;align-self:flex-start;margin-left:auto}
 .cl-btn{border:1.5px solid;border-radius:var(--radius);padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;transition:all .15s;letter-spacing:.02em;white-space:nowrap}
 .cl-btn[data-val="C"]  {color:#1a7a4a;border-color:#1a7a4a}
 .cl-btn[data-val="OBS"]{color:#a06010;border-color:#a06010}
@@ -199,7 +199,7 @@ textarea.form-control{min-height:70px;resize:vertical}
 .back-btn:hover{color:var(--blue)}
 
 @media(max-width:480px){
-  .cl-buttons{flex-wrap:wrap;gap:3px;max-width:140px}
+  .cl-buttons{flex-wrap:nowrap;gap:3px}
   .cl-btn{padding:4px 6px;font-size:10px}
   .ss-num{font-size:18px}
   .actions-bar-inner{gap:8px}
